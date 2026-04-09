@@ -13,6 +13,8 @@ class CodeExecutor(BaseServer):
         super().__init__()
         self.config = Config()
         self.tool_manager = ToolManager(self.config)
+        # 记录启动时的绝对路径，防止 os.chdir 后相对路径失效
+        self._base_dir = os.path.abspath(self.config.BASE_DIR)
 
     def get_task(self):
         result = self.r.rpop(self.config.REDIS_EXECUTOR_LIST_TASK_KEY)
@@ -30,11 +32,13 @@ os.chdir("{task_path}")
     
     def add_official_tools_code(self, code):
         tools_code = ""
-        tools = os.listdir(self.config.TOOL_CODE_DIR)
+        # 使用绝对路径，防止 os.chdir 后相对路径失效
+        tool_code_dir = os.path.join(self._base_dir, self.config.TOOL_CODE_DIR)
+        tools = os.listdir(tool_code_dir)
         for tool in tools:
             if tool.startswith("."): continue
             if tool not in code: continue
-            with open(os.path.join(self.config.TOOL_CODE_DIR,tool),"r",encoding='utf8') as f:
+            with open(os.path.join(tool_code_dir, tool),"r",encoding='utf8') as f:
                 tools_code += f"\n{f.read()}\n"
         return f"""
 {tools_code}

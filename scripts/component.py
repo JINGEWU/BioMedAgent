@@ -97,9 +97,9 @@ class Task:
     def prepare(self):
         self.raw_question = self.question
         task_id = self.config.get_task()
-        task_path = os.path.join(
+        task_path = os.path.abspath(os.path.join(
             f"{self.config.TASK_DIR}",self.config.time_path,task_id
-        )
+        ))
 
         self.config.task_path = task_path
         self.status.task_path = task_path
@@ -136,12 +136,13 @@ class Task:
             shutil.copy(file['path'], task_path)
         #?###########################
         self.status.tools = {}
-        tools = os.listdir(self.config.TOOL_DOC_DIR)
+        tool_doc_dir = os.path.abspath(self.config.TOOL_DOC_DIR)
+        tools = os.listdir(tool_doc_dir)
         # self.status.tools = {}
         for tool in tools:
             if tool.startswith("."):
                 continue
-            with open(os.path.join(self.config.TOOL_DOC_DIR,tool),"r",encoding="utf8") as f:
+            with open(os.path.join(tool_doc_dir, tool),"r",encoding="utf8") as f:
                 document = f.read()
             self.status.tools[tool] = {
                 "document":document

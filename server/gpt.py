@@ -17,7 +17,8 @@ class GPTServer(BaseServer):
     def __init__(self) -> None:
         super().__init__()
         self.config = Config()
-        self.url = os.environ.get('OPENAI_BASE_URL',"https://api.openai.com/v1")
+        base_url = os.environ.get('OPENAI_BASE_URL',"https://api.openai.com/v1")
+        self.url = base_url.rstrip("/") + "/chat/completions"
 
         self.headers = {
             "Content-Type":"application/json",
